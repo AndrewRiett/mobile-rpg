@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Dungeoun.Movement
+namespace Dungeon.Movement
 {
     public class MovementController : MonoBehaviour
     {

@@ -13,9 +13,10 @@ namespace Dungeon.Controller
             animator = GetComponentInChildren<Animator>();
         }
 
-        public void AnimateMovement(float horizontalInput)
+        public void AnimateMovement(float horizontalInput, bool isGrounded)
         {
-            animator.SetFloat("Horizontal", horizontalInput);
+            animator.SetFloat("horizontal", horizontalInput);
+            animator.SetBool("isGrounded", isGrounded);
 
             FlipHorizontal(horizontalInput);
         }
@@ -27,7 +28,7 @@ namespace Dungeon.Controller
         private void FlipHorizontal(float horizontalInput)
         {
             // note: the range is: [-1; 0) & (0; 1]
-            // 0 is excluded from the range to freeze the last "lookAt" direction of idleAnimation state
+            // 0 is excluded from deliberately the range to freeze the last "lookAt" direction of idleAnimation state
             if (horizontalInput < 0f) // look left
                 sprite.flipX = true;
             else if (horizontalInput > 0f) // look right

@@ -51,7 +51,7 @@ namespace Dungeon.Movement
             }
         }
 
-        private bool IsGrounded()
+        public bool IsGrounded()
         {
             RaycastHit2D hit = CastBox();
 

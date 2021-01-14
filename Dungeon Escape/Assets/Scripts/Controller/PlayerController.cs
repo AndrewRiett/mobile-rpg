@@ -25,7 +25,7 @@ namespace Dungeon.Controller
             inputHorizontal = Input.GetAxisRaw("Horizontal");
             shouldJump = Input.GetButtonDown("Jump");
 
-            animating.AnimateMovement(inputHorizontal);
+            animating.AnimateMovement(inputHorizontal, movement.IsGrounded());
         }
 
         private void FixedUpdate()

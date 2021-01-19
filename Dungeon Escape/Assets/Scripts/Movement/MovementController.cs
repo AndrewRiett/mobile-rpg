@@ -4,22 +4,23 @@ namespace Dungeon.Movement
 {
     public class MovementController : MonoBehaviour
     {
-        [Header("Jumping:")]
         [SerializeField] private LayerMask surfaceLayer;
         [SerializeField] private float extraGroundedDistance = 0.5f;
+        
+        public bool IsGrounded { get; private set; }
 
         private Rigidbody2D rigidBody;
         private Collider2D collider2d;
+
+        public void Update()
+        {
+            IsGrounded = CheckIfGrounded();
+        }
 
         private void Awake()
         {
             rigidBody = GetComponent<Rigidbody2D>();
             collider2d = GetComponent<Collider2D>();
-        }
-
-        private void Update()
-        {
-            // DrawDebugJumping();
         }
 
         /// <summary>
@@ -45,17 +46,16 @@ namespace Dungeon.Movement
         /// <param name="jumpForce"></param>
         public void Jump(bool shouldJump, float jumpForce)
         {
-            if (shouldJump && IsGrounded())
+            if (shouldJump && IsGrounded)
             {
                 rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce * Time.fixedDeltaTime);
             }
         }
 
-        public bool IsGrounded()
+        private bool CheckIfGrounded()
         {
             RaycastHit2D hit = CastBox();
-
-            return hit.collider != null;
+            return hit.collider != null; ;
         }
 
         private RaycastHit2D CastBox()
@@ -67,7 +67,6 @@ namespace Dungeon.Movement
         public void DrawDebugJumping()
         {
             RaycastHit2D hit = CastBox();
-
             Color collideColor;
 
             if (hit.collider != null)

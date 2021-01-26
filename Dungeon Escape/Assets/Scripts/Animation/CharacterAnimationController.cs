@@ -4,9 +4,9 @@ namespace Dungeon.Animation
 {
     public class CharacterAnimationController : MonoBehaviour
     {
-        [SerializeField] private ObjectAnimator attackVFXAnimation;
+        [SerializeField] private VFXAnimationController attackVFX;
 
-        private bool isFlipped;
+        private bool facingLeft;
 
         private SpriteRenderer sprite;
         private Animator animator;
@@ -30,10 +30,10 @@ namespace Dungeon.Animation
         {
             animator.SetTrigger("shouldAttack");
 
-            if (attackVFXAnimation != null)
+            if (attackVFX != null)
             {
-                attackVFXAnimation.FlipBothAxis(isFlipped);
-                attackVFXAnimation.Animate();
+                attackVFX.FlipXAxis(facingLeft);
+                attackVFX.Play();
             }
         }
 
@@ -48,12 +48,12 @@ namespace Dungeon.Animation
             if (horizontalInput < 0f) // look left
             {
                 sprite.flipX = true;
-                isFlipped = true;
+                facingLeft = true;
             }
             else if (horizontalInput > 0f) // look right
             {
                 sprite.flipX = false;
-                isFlipped = false;
+                facingLeft = false;
             }
         }
     }

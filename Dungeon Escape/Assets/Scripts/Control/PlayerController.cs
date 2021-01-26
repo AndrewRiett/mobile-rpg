@@ -1,3 +1,4 @@
+using Dungeon.Animation;
 using Dungeon.Fighting;
 using Dungeon.Movement;
 using UnityEngine;
@@ -10,7 +11,7 @@ namespace Dungeon.Control
         [SerializeField] private float jumpForce = 0f;
 
         private MovementController movement;
-        private AnimationController animating;
+        private CharacterAnimationController characterAnimator;
         private FightingController fighting;
 
         private float inputHorizontal;
@@ -22,15 +23,12 @@ namespace Dungeon.Control
         private void Awake()
         {
             movement = GetComponent<MovementController>();
-            animating = GetComponent<AnimationController>();
+            characterAnimator = GetComponent<CharacterAnimationController>();
             fighting = GetComponent<FightingController>();
         }
 
         private void Update()
         {
-            movement.DrawDebugJumping();
-            // isGrounded = movement.IsGrounded();
-
             inputHorizontal = Input.GetAxisRaw("Horizontal");
             shouldJump = Input.GetButton("Jump");
             shouldAttack = Input.GetButtonDown("Fire1");
@@ -39,18 +37,18 @@ namespace Dungeon.Control
 
         private void FixedUpdate()
         {
+            UpdateAnimator();
+
             movement.Jump(shouldJump, jumpForce); 
             movement.Move(inputHorizontal, speed);
 
             fighting.Attack(shouldAttack);
 
-            UpdateAnimator();
         }
 
         private void UpdateAnimator()
         {
-            animating.AnimateMovement(inputHorizontal, movement.IsGrounded, shouldJump);
-            animating.AnimateAttack(shouldAttack, movement.IsGrounded);
+            characterAnimator.AnimateMovement(inputHorizontal, movement.IsGrounded, shouldJump);
         }
     }
 }

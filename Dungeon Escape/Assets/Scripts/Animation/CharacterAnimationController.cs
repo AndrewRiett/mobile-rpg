@@ -25,7 +25,7 @@ namespace Dungeon.Animation
 
             FlipHorizontal(horizontalInput, sprite);
         }
-
+ 
         public void AnimateAttack()
         {
             animator.SetTrigger("shouldAttack");

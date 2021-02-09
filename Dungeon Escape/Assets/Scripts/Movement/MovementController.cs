@@ -74,8 +74,11 @@ namespace Dungeon.Movement
             else
                 collideColor = Color.red;
 
+            // right
             Debug.DrawRay(collider2d.bounds.center + new Vector3(collider2d.bounds.extents.x, 0f), Vector2.down * (collider2d.bounds.extents.y + extraGroundedDistance), collideColor);
+            //left
             Debug.DrawRay(collider2d.bounds.center - new Vector3(collider2d.bounds.extents.x, 0f), Vector2.down * (collider2d.bounds.extents.y + extraGroundedDistance), collideColor);
+            //bottom
             Debug.DrawRay(collider2d.bounds.center - new Vector3(collider2d.bounds.extents.x, collider2d.bounds.extents.y), Vector2.right * (collider2d.bounds.extents.x), collideColor);
         }
     }

@@ -11,14 +11,10 @@ namespace Dungeon.Navigation.Waypoints
         
         private const float WaypointGizmosRadius = 0.1f;
         private int _nextPatrolIndex;
-        private float _horizontal;
 
-        public int CalculateNextIndex(int currentIndex)
+        public virtual int CalculateNextIndex(int currentIndex)
         {
             _nextPatrolIndex = currentIndex;
-
-            //if (cycleWaypoints)
-            //    return GetNextCycledID(currentIndex);
 
             switch (_patrolOrder)
             {
@@ -50,51 +46,7 @@ namespace Dungeon.Navigation.Waypoints
             return _nextPatrolIndex;
 
         }
-
-        internal float DetermineHorizontal(Vector2 position) //Vector2 target)
-        {
-            //Vector2 direction = position - target;
-            //float magnitude = direction.magnitude;
-            //direction.Normalize();
-
-            ////if (magnitude > 0)
-            ////    magnitude = 1;
-            ////else if (magnitude < 0)
-            ////    magnitude = -1;
-
-            //horizontal = (magnitude > 0 && magnitude != 0) ? 1 : -1;
-
-            switch (_patrolOrder)
-            {
-                case PatrolOrder.Ascending:
-                    _horizontal = 1;
-                    break;
-                case PatrolOrder.Descending:
-                    _horizontal = -1;
-                    break;
-
-            }
-
-            return _horizontal;
-        }
-
-        internal int InitWaypointID()
-        {
-            if (_patrolOrder == PatrolOrder.Descending)
-            {
-                Debug.Log("Left: " + (transform.childCount - 1));
-
-                _horizontal = -1;
-                return transform.childCount - 1;
-            }
-
-            Debug.Log("Right: 0");
-
-            return 0;
-        }
-
-        // returns vector
-        public Vector3 GetCurrentWaypointPos(int currentIndex)
+        private Vector3 GetCurrentWaypointPos(int currentIndex)
         {
             return transform.GetChild(currentIndex).position;
         }
@@ -104,7 +56,7 @@ namespace Dungeon.Navigation.Waypoints
             return transform.GetChild(_nextPatrolIndex).position;
         }
 
-        //private int GetNextCycledID(int currentIndex)
+        //public override int CalculateNextIndex(int currentIndex)
         //{
         //    int index = currentIndex;
 

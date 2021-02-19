@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-namespace Dungeon.StateMachine
+namespace Dungeon.FSM
 {
     public abstract class BaseState
     {
@@ -13,7 +14,11 @@ namespace Dungeon.StateMachine
         protected GameObject gameObject;
         protected Transform transform;
 
-        public abstract StateType Tick();
-        public abstract StateType GetStateType();
+        public abstract Enum Tick();
+        public abstract Enum GetStateType();
+
+        public virtual void OnStateEnter() { }
+        public virtual void OnStateExit() { }
+
     }
 }

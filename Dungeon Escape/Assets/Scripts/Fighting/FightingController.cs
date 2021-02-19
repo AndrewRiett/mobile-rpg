@@ -8,13 +8,13 @@ namespace Dungeon.Fighting
     {
         [SerializeField] private float attackDelay = 0.9f; // 0.9 sec is a min animation value
         private float attackDelayCounter = Mathf.Infinity;
-        private CharacterAnimationController characterAnimator;
+        private CharacterAnimator characterAnimator;
 
         public UnityEvent onAttack;
 
         private void Awake()
         {
-            characterAnimator = GetComponent<CharacterAnimationController>();
+            characterAnimator = GetComponent<CharacterAnimator>();
         }
 
         private void Update()

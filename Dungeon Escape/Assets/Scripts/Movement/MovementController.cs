@@ -1,39 +1,45 @@
+using Dungeon.Animation;
 using UnityEngine;
 
 namespace Dungeon.Movement
 {
+    [RequireComponent(typeof(Rigidbody2D))]
     public class MovementController : MonoBehaviour
     {
         [SerializeField] private LayerMask surfaceLayer;
-        [SerializeField] private float extraGroundedDistance = 0.5f;
-        
-        public bool IsGrounded { get; private set; }
+        [SerializeField] private float extraGroundedDistance = 0.1f;
 
-        private Rigidbody2D rigidBody;
-        private Collider2D collider2d;
+        private bool _isGrounded;
+
+        private Rigidbody2D _rigidBody;
+        private Collider2D _collider2d;
+        private CharacterAnimator _animator;
 
         public void Update()
         {
-            IsGrounded = CheckIfGrounded();
+            _isGrounded = CheckIfGrounded();
+            DrawDebugJumping();
         }
 
         private void Awake()
         {
-            rigidBody = GetComponent<Rigidbody2D>();
-            collider2d = GetComponent<Collider2D>();
+            _animator = GetComponent<CharacterAnimator>();
+            _rigidBody = GetComponent<Rigidbody2D>();
+            _collider2d = GetComponent<Collider2D>();
         }
 
         /// <summary>
         /// Move method that should be called in FixedUpdate.
-        /// Multiplies horizontalInput by moveSpeed and Time.fexedDeltaTime:
+        /// Multiplies horizontalInput by moveSpeed and Time.fixedDeltaTime:
         /// horizontalInput * moveSpeed * Time.fixedDeltaTime.
         /// </summary>
         /// <param name="horizontalInput"></param>
         /// <param name="moveSpeed"></param>
         public void Move(float horizontalInput, float moveSpeed)
         {
-            rigidBody.velocity = new Vector2(horizontalInput * moveSpeed * Time.fixedDeltaTime,
-                rigidBody.velocity.y);
+            _animator.AnimateMovement(horizontalInput, _isGrounded);
+            _rigidBody.velocity = new Vector2(horizontalInput * moveSpeed * Time.fixedDeltaTime,
+                _rigidBody.velocity.y);
         }
 
         /// <summary>
@@ -46,40 +52,46 @@ namespace Dungeon.Movement
         /// <param name="jumpForce"></param>
         public void Jump(bool shouldJump, float jumpForce)
         {
-            if (shouldJump && IsGrounded)
+            if (shouldJump && _isGrounded)
             {
-                rigidBody.velocity = new Vector2(rigidBody.velocity.x, jumpForce * Time.fixedDeltaTime);
+                _animator.AnimateJumping();
+                _rigidBody.velocity = new Vector2(_rigidBody.velocity.x, jumpForce * Time.fixedDeltaTime);
             }
+        }
+
+        /// <summary>
+        /// Stops current movement by assigning a zero Vector to the velocity
+        /// And assigning 0 to an animator's horizontal.
+        /// </summary>
+        public void Stop()
+        {
+            _animator.Stop();
+            _rigidBody.velocity = Vector2.zero;
         }
 
         private bool CheckIfGrounded()
         {
             RaycastHit2D hit = CastBox();
-            return hit.collider != null; ;
+            return (!ReferenceEquals(hit.collider, null)); //more efficient null check since it's being called each frame
         }
 
         private RaycastHit2D CastBox()
         {
-            return Physics2D.BoxCast(collider2d.bounds.center, collider2d.bounds.size, 0f,
+            return Physics2D.BoxCast(_collider2d.bounds.center, _collider2d.bounds.size, 0f,
                 Vector2.down, extraGroundedDistance, surfaceLayer);
         }
 
         public void DrawDebugJumping()
         {
-            RaycastHit2D hit = CastBox();
-            Color collideColor;
-
-            if (hit.collider != null)
-                collideColor = Color.green;
-            else
-                collideColor = Color.red;
+            Color collideColor = (CheckIfGrounded()) ? Color.green : Color.red;
+            var bounds = _collider2d.bounds;
 
             // right
-            Debug.DrawRay(collider2d.bounds.center + new Vector3(collider2d.bounds.extents.x, 0f), Vector2.down * (collider2d.bounds.extents.y + extraGroundedDistance), collideColor);
+            Debug.DrawRay(bounds.center + new Vector3(bounds.extents.x, 0f), Vector2.down * (bounds.extents.y + extraGroundedDistance), collideColor);
             //left
-            Debug.DrawRay(collider2d.bounds.center - new Vector3(collider2d.bounds.extents.x, 0f), Vector2.down * (collider2d.bounds.extents.y + extraGroundedDistance), collideColor);
+            Debug.DrawRay(_collider2d.bounds.center - new Vector3(bounds.extents.x, 0f), Vector2.down * (bounds.extents.y + extraGroundedDistance), collideColor);
             //bottom
-            Debug.DrawRay(collider2d.bounds.center - new Vector3(collider2d.bounds.extents.x, collider2d.bounds.extents.y), Vector2.right * (collider2d.bounds.extents.x), collideColor);
+            Debug.DrawRay(_collider2d.bounds.center - new Vector3(bounds.extents.x, bounds.extents.y), Vector2.right * (bounds.extents.x), collideColor);
         }
     }
 }

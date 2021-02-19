@@ -1,26 +1,55 @@
-﻿using UnityEngine;
-using Dungeon.Movement.Waypoints;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using Dungeon.Animation;
+using Dungeon.FSM;
+using Dungeon.Control.Enemies.EnemyStates;
+using Dungeon.Movement;
+using System;
+using Dungeon.Navigation;
 
 namespace Dungeon.Control.Enemies
 {
+    [RequireComponent(typeof(CharacterAnimator))]
+    [RequireComponent(typeof(MovementController))]
+    [RequireComponent(typeof(StateMachine))]
+    [RequireComponent(typeof(NavController))]
     public abstract class Enemy : MonoBehaviour
     {
-        [SerializeField] protected float maxHealth;
-        [SerializeField] protected float speed;
-        [SerializeField] protected int gemsAmount;
+        // Basic
+        [SerializeField] protected float _maxHealth;
+        [SerializeField] protected float _moveSpeed;
+        [SerializeField] protected int _gemsAmount;
 
-        [Header("Patrol path:")]
-        [SerializeField] protected PatrolPath patrolPath;
-        [SerializeField] protected float toleranceDistance = 0.1f;
+        protected StateMachine _stateMachine;
+        protected MovementController _movement;
+        protected NavController _navController;
 
-        public PatrolPath PatrolPath { get => patrolPath; }
-        public float ToleranceDistance { get => toleranceDistance; }
-        internal int CurrentWaypointID { get; set; }
+        #region Properties:
+        internal float MoveSpeed { get => _moveSpeed; }
+        internal MovementController Movement { get => _movement; }
+        internal NavController NavController { get => _navController; }
+        #endregion
 
-        protected virtual void Attack() { }
-        protected virtual bool CheckForAggro()
+        private void Awake()
         {
-            return true;
+            _stateMachine = GetComponent<StateMachine>();
+            _movement = GetComponent<MovementController>();
+            _navController = GetComponent<NavController>();
+        }
+
+        private void OnEnable()
+        {
+            InitStates();
+        }
+        protected virtual void InitStates()
+        {
+            var statesToInit = new Dictionary<Enum, BaseState>
+            {
+                {EnemyStateType.Idle, new EnemyIdle(this)},
+                {EnemyStateType.Patrol, new EnemyPatrol(this) }
+            };
+
+            _stateMachine.SetStates(statesToInit, EnemyStateType.Idle);
         }
     }
 }

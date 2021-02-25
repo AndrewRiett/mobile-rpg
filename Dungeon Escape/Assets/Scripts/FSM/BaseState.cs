@@ -19,6 +19,5 @@ namespace Dungeon.FSM
 
         public virtual void OnStateEnter() { }
         public virtual void OnStateExit() { }
-
     }
 }

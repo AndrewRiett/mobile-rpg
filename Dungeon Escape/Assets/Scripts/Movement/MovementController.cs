@@ -54,6 +54,7 @@ namespace Dungeon.Movement
         {
             if (shouldJump && _isGrounded)
             {
+                // BUG: attack in jumping doesn't work 
                 _animator.AnimateJumping();
                 _rigidBody.velocity = new Vector2(_rigidBody.velocity.x, jumpForce * Time.fixedDeltaTime);
             }
@@ -65,14 +66,14 @@ namespace Dungeon.Movement
         /// </summary>
         public void Stop()
         {
-            _animator.Stop();
             _rigidBody.velocity = Vector2.zero;
+            _animator.Stop();
         }
 
         private bool CheckIfGrounded()
         {
             RaycastHit2D hit = CastBox();
-            return (!ReferenceEquals(hit.collider, null)); //more efficient null check since it's being called each frame
+            return ( !ReferenceEquals(hit.collider, null)); //more efficient null check since it's being called each frame
         }
 
         private RaycastHit2D CastBox()

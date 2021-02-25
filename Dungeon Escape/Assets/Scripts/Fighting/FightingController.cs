@@ -7,14 +7,14 @@ namespace Dungeon.Fighting
     public class FightingController : MonoBehaviour
     {
         [SerializeField] private float attackDelay = 0.9f; // 0.9 sec is a min animation value
-        private float attackDelayCounter = Mathf.Infinity;
-        private CharacterAnimator characterAnimator;
-
+        private float _attackDelayCounter = Mathf.Infinity;
+        private CharacterAnimator _characterAnimator;
+        
         public UnityEvent onAttack;
 
         private void Awake()
         {
-            characterAnimator = GetComponent<CharacterAnimator>();
+            _characterAnimator = GetComponent<CharacterAnimator>();
         }
 
         private void Update()
@@ -26,16 +26,16 @@ namespace Dungeon.Fighting
         {
             if (shouldAttack && CanAttack())
             {
-                characterAnimator.AnimateAttack();
+                _characterAnimator.AnimateAttack();
                 onAttack.Invoke();
 
-                attackDelayCounter = 0f;
+                _attackDelayCounter = 0f;
             }
         }
 
         private bool CanAttack()
         {
-            if (attackDelayCounter < attackDelay)
+            if (_attackDelayCounter < attackDelay)
                 return false;
 
             return true;
@@ -43,7 +43,7 @@ namespace Dungeon.Fighting
 
         private void UpdateTimer()
         {
-            attackDelayCounter += Time.deltaTime;
+            _attackDelayCounter += Time.deltaTime;
         }
     }
 }

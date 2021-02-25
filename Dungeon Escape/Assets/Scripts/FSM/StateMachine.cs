@@ -6,8 +6,8 @@ namespace Dungeon.FSM
 {
     public class StateMachine : MonoBehaviour
     {
-        [SerializeField] protected Enum _defaultState;
-        protected Dictionary<Enum, BaseState> _availableStates;
+        private Enum _defaultState;
+        private Dictionary<Enum, BaseState> _availableStates;
         
         public BaseState CurrentState { get; private set; }
         public event Action<BaseState> OnStateChanged;

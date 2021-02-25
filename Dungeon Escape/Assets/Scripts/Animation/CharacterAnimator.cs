@@ -36,6 +36,7 @@ namespace Dungeon.Animation
 
             if (attackVFX == null) return;
             
+            // BUG: when moving the animation doesn't flip
             attackVFX.FlipXAxis(_facingLeft);
             attackVFX.Play();
         }

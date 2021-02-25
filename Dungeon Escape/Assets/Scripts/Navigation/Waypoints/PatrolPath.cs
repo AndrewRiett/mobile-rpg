@@ -10,50 +10,57 @@ namespace Dungeon.Navigation.Waypoints
         private PatrolOrder _patrolOrder;
         
         private const float WaypointGizmosRadius = 0.1f;
-        private int _nextPatrolIndex;
+        private int _index;
 
         public virtual int CalculateNextIndex(int currentIndex)
         {
-            _nextPatrolIndex = currentIndex;
+            _index = currentIndex;
+            
+            // int activePoints = 0;
+            // for (int i = 0; i < transform.childCount; i++)
+            // {
+            //     if (transform.GetChild(i).gameObject.activeSelf)
+            //         activePoints = i;
+            // }
 
             switch (_patrolOrder)
             {
                 case PatrolOrder.Ascending:
-                    if (_nextPatrolIndex + 1 == transform.childCount)
+                    if (currentIndex + 1 == transform.childCount)
                     {
                         _patrolOrder = PatrolOrder.Descending;
-                        _nextPatrolIndex--;
+                        _index--;
                     }
                     else
                     {
-                        _nextPatrolIndex++;
+                        _index++;
                     }
                     break;
 
                 case PatrolOrder.Descending:
-                    if (_nextPatrolIndex - 1 < 0)
+                    if (currentIndex - 1 < 0)
                     {
                         _patrolOrder = PatrolOrder.Ascending;
-                        _nextPatrolIndex++;
+                        _index++;
                     }
                     else
                     {
-                        _nextPatrolIndex--;
+                        _index--;
                     }
                     break;
             }
 
-            return _nextPatrolIndex;
-
+            return _index;
         }
-        private Vector3 GetCurrentWaypointPos(int currentIndex)
+
+        internal Vector2 GetWaypointPos()
+        {
+            return transform.GetChild(_index).position;
+        }
+
+        private Vector2 GetCurrentWaypointPos(int currentIndex)
         {
             return transform.GetChild(currentIndex).position;
-        }
-        
-        public Vector3 GetNextWaypointPos()
-        {
-            return transform.GetChild(_nextPatrolIndex).position;
         }
 
         //public override int CalculateNextIndex(int currentIndex)
@@ -95,6 +102,10 @@ namespace Dungeon.Navigation.Waypoints
                     UnityEditor.Handles.Label(currentWaypointPos, (transform.childCount - (i+1)).ToString());
                     
 #endif
+                // for not drawing the line to an inactive waypoint
+                if (!transform.GetChild(cycledIndex).gameObject.activeSelf)
+                    return; 
+                
                 // drawing line connections
                 if (!cycleWaypoints && (i + 1) == transform.childCount)
                     continue;

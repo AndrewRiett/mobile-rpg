@@ -1,6 +1,6 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using Dungeon.Movement;
+using Dungeon.Animation;
 using Dungeon.Navigation.Waypoints;
 
 namespace Dungeon.Navigation
@@ -8,34 +8,57 @@ namespace Dungeon.Navigation
     public class NavController : MonoBehaviour
     {
         // TODO: 1) add walls check (ray)
-        // 2) add ground to walk check (ray)
-        // 3) implement movement without PatrolPath
-        // 4) make a custom editor for choosing either free movement or PatrolPath
+        // 2) add ground to the check (ray)
+        // 3) implement a free movement option without PatrolPath's waypoints
         
-        [Header("Patrol path:")]
-        [SerializeField] private PatrolPath patrolPath;
-        [SerializeField] private float toleranceDistance = 0.1f;
-        [SerializeField] private float waypointIdleTime = 5f;
+        [Header("Patrol:")]
+        [SerializeField] private float idleTime = 5f;
+        
+        // Called in custom editor NavControllerEditor via string references,
+        // careful with changing the names:
+        [HideInInspector][SerializeField] private bool usePath;
+        [HideInInspector][SerializeField] private PatrolPath _patrolPath;
+        [HideInInspector][SerializeField] private float _toleranceDistance;
 
-        public float WaypointIdleTime => waypointIdleTime;
+        public float IdleTime => idleTime;
         private Vector2 CurrentPos => transform.position;
 
         private MovementController _movement;
+        private SurfaceChecker _surfaceChecker;
         private Vector2 _direction;
         private float _horizontal;
         
-        private int _currentWaypointIndex = -1; // is computed in IdleState 
+        private int _currentWaypointIndex = -1; // is computed after entering IdleState via SetNextWaypoint()
         private float _timer;
+        private CharacterAnimator _characterAnimator;
 
         private void Awake()
         {
             _movement = GetComponent<MovementController>();
+            _characterAnimator = GetComponent<CharacterAnimator>();
+            
+            _surfaceChecker = GetComponentInChildren<SurfaceChecker>();
         }
 
         public void MoveTo(Vector2 destination, float speed)
         {
             _horizontal = CalculateHorizontal(destination);
             _movement.Move(_horizontal, speed);
+        }
+
+        public void LookAt(Transform target)
+        {
+            _characterAnimator.FlipHorizontal(
+                CalculateHorizontal(target.position));
+        }
+
+        public bool IsAtPosition(Vector2 position)
+        {
+            // For Y axis:
+            // float distanceToWaypoint = Vector2.Distance(currentPos, nextPos);
+            
+            float horizontalDistance = Mathf.Abs(CurrentPos.x - position.x); 
+            return horizontalDistance < _toleranceDistance;
         }
 
         private float CalculateHorizontal(Vector2 nextPos)
@@ -46,35 +69,22 @@ namespace Dungeon.Navigation
             return _horizontal;
         }
 
-        public bool IsAtPosition(Vector2 nextPos)
-        {
-            // For Y axis:
-            // float distanceToWaypoint = Vector2.Distance(currentPos, nextPos);
-            
-            float horizontalDistance = Mathf.Abs(CurrentPos.x - nextPos.x); 
-            return horizontalDistance < toleranceDistance;
-        }
-
-        public Vector2 GetWaypointPos()
-        {
-            return patrolPath.GetWaypointPos();
-        }
-
-        public void SetNextWaypoint()
-        {
-            _currentWaypointIndex = patrolPath.CalculateNextIndex(_currentWaypointIndex);
-        }
-
         public bool ShouldPatrolAfter(float time)
         {
             if (_timer >= time)
             {
-                _timer = 0f;
+                ResetTimer();
                 return true;
             }
 
             _timer += Time.deltaTime;
+            // Debug.Log(_timer);
             return false;
+        }
+
+        public void ResetTimer()
+        {
+            _timer = 0f;
         }
 
         public void Stop()
@@ -84,9 +94,23 @@ namespace Dungeon.Navigation
             
         }
 
+        #region PatrolPath Waypoints
+
         public bool HasPatrolPath()
         {
-            return patrolPath;
+            return _patrolPath;
         }
+
+        public Vector2 GetWaypointPos()
+        {
+            return _patrolPath.GetWaypointPos();
+        }
+
+        public void SetNextWaypoint()
+        {
+            _currentWaypointIndex = _patrolPath.CalculateNextIndex(_currentWaypointIndex);
+        }
+
+        #endregion
     }
 }

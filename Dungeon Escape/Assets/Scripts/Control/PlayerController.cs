@@ -37,7 +37,7 @@ namespace Dungeon.Control
             _movement.Jump(_shouldJump, jumpForce); 
             _movement.Move(_inputHorizontal, speed);
 
-            _fighting.Attack(_shouldAttack);
+            _fighting.Hit(_shouldAttack);
         }
     }
 }

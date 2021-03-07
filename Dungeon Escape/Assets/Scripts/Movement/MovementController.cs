@@ -9,7 +9,7 @@ namespace Dungeon.Movement
         [SerializeField] private LayerMask surfaceLayer;
         [SerializeField] private float extraGroundedDistance = 0.1f;
 
-        private bool _isGrounded;
+        private bool IsGrounded => CheckIfGrounded();
 
         private Rigidbody2D _rigidBody;
         private Collider2D _collider2d;
@@ -17,8 +17,7 @@ namespace Dungeon.Movement
 
         public void Update()
         {
-            _isGrounded = CheckIfGrounded();
-            DrawDebugJumping();
+            // DrawDebugJumping();
         }
 
         private void Awake()
@@ -37,7 +36,7 @@ namespace Dungeon.Movement
         /// <param name="moveSpeed"></param>
         public void Move(float horizontalInput, float moveSpeed)
         {
-            _animator.AnimateMovement(horizontalInput, _isGrounded);
+            _animator.AnimateMovement(horizontalInput, IsGrounded);
             _rigidBody.velocity = new Vector2(horizontalInput * moveSpeed * Time.fixedDeltaTime,
                 _rigidBody.velocity.y);
         }
@@ -45,16 +44,15 @@ namespace Dungeon.Movement
         /// <summary>
         /// Jump method that should be called in FixedUpdate.
         /// Takes a bool (taken from Update) and if true,
-        /// changes Y velocity to a new jumpForce velocity: 
+        /// changes Y velocity to the new jumpForce velocity: 
         /// jumpForce * Time.fixedDeltaTime
         /// </summary>
         /// <param name="shouldJump"></param>
         /// <param name="jumpForce"></param>
         public void Jump(bool shouldJump, float jumpForce)
         {
-            if (shouldJump && _isGrounded)
+            if (shouldJump && IsGrounded)
             {
-                // BUG: attack in jumping doesn't work 
                 _animator.AnimateJumping();
                 _rigidBody.velocity = new Vector2(_rigidBody.velocity.x, jumpForce * Time.fixedDeltaTime);
             }
@@ -73,7 +71,7 @@ namespace Dungeon.Movement
         private bool CheckIfGrounded()
         {
             RaycastHit2D hit = CastBox();
-            return ( !ReferenceEquals(hit.collider, null)); //more efficient null check since it's being called each frame
+            return hit.collider; //more efficient null check
         }
 
         private RaycastHit2D CastBox()

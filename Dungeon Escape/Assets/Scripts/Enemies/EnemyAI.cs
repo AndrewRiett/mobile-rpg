@@ -4,6 +4,7 @@ using UnityEngine;
 using Dungeon.FSM;
 using Dungeon.Enemies.EnemyStates;
 using Dungeon.Animation;
+using Dungeon.Fighting;
 using Dungeon.Navigation;
 
 namespace Dungeon.Enemies
@@ -19,10 +20,12 @@ namespace Dungeon.Enemies
         [SerializeField] protected int _gemsAmount;
         [SerializeField] protected float _suspicionTime;
 
-        // general
+        // properties
         internal NavController NavController { get; private set;}
+        internal FightingAI Fighting { get; private set; }
+        
         internal float SuspicionTime => _suspicionTime;
-        internal float MoveSpeed  => _moveSpeed;
+        internal float MoveSpeed  => _moveSpeed; // patrolSpeed => get { hasPatrolSpeed ? _patrolSpeed : _moveSpeed} 
 
         // targeting
         public GameObject Target { get; private set; }
@@ -31,15 +34,15 @@ namespace Dungeon.Enemies
         
         // fsm
         private StateMachine _stateMachine;
-
-
-        // TODO: aggrevate nearby allies by casting a box,
+        
+        // TODO: aggravate nearby allies by casting a box,
         // then get components and setTarget
 
         private void Awake()
         {
             _stateMachine = GetComponent<StateMachine>();
             NavController = GetComponent<NavController>();
+            Fighting = GetComponent<FightingAI>();
         }
 
         private void OnEnable()
@@ -47,16 +50,16 @@ namespace Dungeon.Enemies
             InitStates();
         }
 
-        internal void RemoveTarget()
-        {
-            _targetLastPos = this.Target.transform.position;
-            Target = null;
-        }
-
         internal void SetTarget(GameObject target)
         {
             Target = target;
             isAggravated = true;
+        }
+
+        internal void RemoveTarget()
+        {
+            _targetLastPos = this.Target.transform.position;
+            Target = null;
         }
 
         internal Vector2 GetLastTargetPos()
@@ -68,7 +71,7 @@ namespace Dungeon.Enemies
             return Target.transform.position;
         }
 
-        public bool HasTarget()
+        internal bool HasTarget()
         {
             return Target;
         }
@@ -79,11 +82,12 @@ namespace Dungeon.Enemies
             {
                 {EnemyStateType.Idle, new EnemyIdle(this)},
                 {EnemyStateType.Patrol, new EnemyPatrol(this)},
-                {EnemyStateType.Chase, new EnemyChase(this, NavController, _moveSpeed)},
+                {EnemyStateType.Chase, new EnemyChase(this)},
                 {EnemyStateType.Suspicion, new EnemySuspicion(this)},
+                {EnemyStateType.Attack, new EnemyAttack(this)},
             };
 
-            _stateMachine.SetStates(statesToInit, EnemyStateType.Idle);
+            _stateMachine.SetStates(statesToInit, defaultState: EnemyStateType.Idle);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
 
 namespace Dungeon.Animation
@@ -13,7 +12,11 @@ namespace Dungeon.Animation
         {
             particles = GetComponent<ParticleSystem>();
             particlesRenderer = GetComponent<ParticleSystemRenderer>();
-            
+        }
+
+        private void OnEnable()
+        {
+            CharacterAnimator.OnFlip += FlipXAxis;
         }
 
         public void Play()
@@ -21,7 +24,8 @@ namespace Dungeon.Animation
             particles.Play();
         }
 
-        internal void FlipXAxis(bool facingLeft)
+        // BUG: doesn't flip the axis sometimes (apply horizontal instead?)
+        private void FlipXAxis(bool facingLeft)
         {
             if (facingLeft)
                 particlesRenderer.flip = new Vector3(1f, 0f, 0f);

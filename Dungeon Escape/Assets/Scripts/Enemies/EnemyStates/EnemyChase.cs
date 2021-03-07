@@ -1,8 +1,7 @@
 ﻿using System;
+using Dungeon.Fighting;
 using UnityEngine;
 using Dungeon.FSM;
-using Dungeon.Fighting;
-using Dungeon.Movement;
 using Dungeon.Navigation;
 
 namespace Dungeon.Enemies.EnemyStates
@@ -11,31 +10,40 @@ namespace Dungeon.Enemies.EnemyStates
     {
         private readonly EnemyAI _enemy;
         private readonly NavController _navController;
+        private readonly FightingAI _fighting;
         private readonly float _moveSpeed;
 
-        public EnemyChase(EnemyAI enemy, NavController navController, 
-            float moveSpeed) : base(enemy.gameObject)
+        public EnemyChase(EnemyAI enemy) : base(enemy.gameObject)
         {
             _enemy = enemy;
 
-            _navController = navController;
-            _moveSpeed = moveSpeed;
+            _fighting = _enemy.GetComponent<FightingAI>();
+            _navController = _enemy.NavController;
+            _moveSpeed = _enemy.MoveSpeed;
         }
 
         public override Enum Tick()
         {
-            // if _enemy.inAttackRange -> Attack
-            
-            Vector2 destination = _enemy.GetLastTargetPos();
-
-            if (_navController.IsAtPosition(destination))
+            if (_fighting.IsInRange(_enemy.Target))
             {
-                _navController.Stop();
-                return EnemyStateType.Suspicion; // returns and waits for the suspicion timer 
+                _navController.Stop(); 
+                _navController.LookAt(_enemy.Target.transform);
+                _fighting.Attack(_enemy.Target);
+                
+                return EnemyStateType.Chase; // early return
             }
             
-            _navController.MoveTo(destination, _moveSpeed);
-            return EnemyStateType.Chase;
+            Vector2 lastTargetPos = _enemy.GetLastTargetPos();
+
+            // if a target has left and the enemy has reached its last position
+            if (_navController.IsAtPosition(lastTargetPos)) 
+            {
+                _navController.Stop();
+                return EnemyStateType.Suspicion; // stops and waits for the suspicion timer 
+            }
+            
+            _navController.MoveTo(lastTargetPos, _moveSpeed); // otherwise move to the last target's position
+            return EnemyStateType.Chase; 
         }
 
         public override Enum GetStateType()
@@ -45,7 +53,7 @@ namespace Dungeon.Enemies.EnemyStates
 
         public override void OnStateEnter()
         {
-            // Debug.Log("Chase");
+            Debug.Log("Chase");
         }
     }
 }

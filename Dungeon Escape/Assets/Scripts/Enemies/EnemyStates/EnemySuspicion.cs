@@ -18,6 +18,12 @@ namespace Dungeon.Enemies.EnemyStates
 
         public override Enum Tick()
         {
+            if (_enemy.HasTarget())
+            {
+                return EnemyStateType.Chase;
+            }
+            
+            // BUG: doesn't wait for the suspicion timer
             if (_navController.ShouldPatrolAfter(_enemy.SuspicionTime))
             {
                 return EnemyStateType.Patrol;
@@ -31,9 +37,14 @@ namespace Dungeon.Enemies.EnemyStates
             return EnemyStateType.Suspicion;
         }
 
+        public override void OnStateEnter()
+        {
+            Debug.Log("Suspicion State");
+        }
+
         public override void OnStateExit()
         {
-            base.OnStateExit();
+            _navController.ResetTimer();
             _enemy.isAggravated = false;
         }
     }

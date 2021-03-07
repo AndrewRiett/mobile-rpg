@@ -1,7 +1,7 @@
 using System;
-using UnityEngine;
 using Dungeon.FSM;
 using Dungeon.Navigation;
+using UnityEngine;
 
 namespace Dungeon.Enemies.EnemyStates
 {
@@ -23,7 +23,7 @@ namespace Dungeon.Enemies.EnemyStates
                 return EnemyStateType.Chase;
             }
 
-            if (_navController.ShouldPatrolAfter(_navController.WaypointIdleTime))
+            if (_navController.ShouldPatrolAfter(_navController.IdleTime))
             {
                 _navController.SetNextWaypoint();
                 return EnemyStateType.Patrol;
@@ -35,6 +35,16 @@ namespace Dungeon.Enemies.EnemyStates
         public override Enum GetStateType()
         {
             return EnemyStateType.Idle;
+        }
+
+        public override void OnStateEnter()
+        {
+            Debug.Log("Idle State");
+        }
+
+        public override void OnStateExit()
+        {
+            _navController.ResetTimer();
         }
     }
 }

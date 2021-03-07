@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEngine;
 using Dungeon.FSM;
-using Dungeon.Movement;
 using Dungeon.Navigation;
 
 namespace Dungeon.Enemies.EnemyStates
@@ -50,7 +49,7 @@ namespace Dungeon.Enemies.EnemyStates
 
         public override void OnStateEnter()
         {
-            // Debug.Log("Patrol");
+            Debug.Log("Patrol");
             _destination = _navController.GetWaypointPos(); 
         }
     }

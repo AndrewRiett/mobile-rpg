@@ -1,4 +1,4 @@
-﻿namespace Dungeon.Enemies.EnemyStates
+﻿namespace Dungeon.Enemies
 {
     public enum EnemyStateType 
     {
